@@ -10,6 +10,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TreeSet;
 
+/**
+ * Generates the Vosk grammar from an immutable Arcadia lexicon snapshot.
+ *
+ * <p>The generator is part of the core layer and does not know where the
+ * lexicon data came from. In production, the snapshot is usually built from
+ * Hytale assets, but tests may create snapshots directly.</p>
+ */
 public final class GrammarGenerator {
     private static final String UNKNOWN_TOKEN = "[unk]";
 

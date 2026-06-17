@@ -12,6 +12,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Converts Hytale asset definitions into Arcadia core lexicon objects.
+ *
+ * <p>This class is the boundary between the Hytale asset layer and the core
+ * grammar/parser layer. It should not perform grammar generation or parsing.</p>
+ */
 public final class LexiconLoader {
     private LexiconLoader() {
     }

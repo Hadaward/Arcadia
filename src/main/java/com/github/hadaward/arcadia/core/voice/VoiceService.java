@@ -10,6 +10,13 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
+/**
+ * Owns the lifecycle of Arcadia's voice pipeline.
+ *
+ * <p>The service prepares the bundled Vosk model, owns the shared speech
+ * recognizer and stores the latest grammar generated from the loaded lexicon.
+ * Player-specific recognition sessions are opened from this service.</p>
+ */
 public final class VoiceService implements AutoCloseable {
     private static final List<String> DEFAULT_GRAMMAR = List.of("[unk]");
 
