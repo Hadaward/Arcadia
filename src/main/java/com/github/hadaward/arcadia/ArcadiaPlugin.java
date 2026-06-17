@@ -1,7 +1,6 @@
 package com.github.hadaward.arcadia;
 
-import com.github.hadaward.arcadia.core.voice.model.BundledVoskModelExtractor;
-import com.github.hadaward.arcadia.core.voice.model.VoskModelManager;
+import com.github.hadaward.arcadia.core.voice.VoiceService;
 import com.github.hadaward.arcadia.hytale.voice.InterceptingVoiceStreamHandler;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.protocol.packets.stream.StreamType;
@@ -17,9 +16,8 @@ import java.nio.file.Path;
 /**
  * Main entry point for the Arcadia Hytale plugin.
  *
- * <p>This class is responsible for initializing Hytale-specific integration,
- * preparing the bundled Vosk model and registering Arcadia's voice stream
- * interception layer.</p>
+ * <p>This class initializes Hytale-specific integration, registers Arcadia's
+ * voice stream interception layer and starts the core voice service.</p>
  */
 public final class ArcadiaPlugin extends JavaPlugin {
     public static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
@@ -27,9 +25,7 @@ public final class ArcadiaPlugin extends JavaPlugin {
     private static ArcadiaPlugin instance;
 
     private final Path cacheDirectory;
-
-    private VoskModelManager voskModelManager;
-    private Path voskModelPath;
+    private VoiceService voiceService;
 
     public ArcadiaPlugin(@NonNullDecl JavaPluginInit init) {
         super(init);
@@ -38,22 +34,13 @@ public final class ArcadiaPlugin extends JavaPlugin {
         cacheDirectory = resolveCacheDirectory();
     }
 
-    /**
-     * Returns the active Arcadia plugin instance.
-     *
-     * @return the active plugin instance.
-     */
-    public static ArcadiaPlugin get() {
-        return instance;
-    }
-
     @Override
     protected void setup() {
         super.setup();
 
         ensureVoiceModuleIsEnabled();
         registerVoiceStreamHandler();
-        initializeVoskModel();
+        initializeVoiceService();
     }
 
     /**
@@ -66,24 +53,6 @@ public final class ArcadiaPlugin extends JavaPlugin {
      */
     public Path getCacheDirectory() {
         return cacheDirectory;
-    }
-
-    /**
-     * Returns the manager responsible for preparing the bundled Vosk model.
-     *
-     * @return the Vosk model manager.
-     */
-    public VoskModelManager getVoskModelManager() {
-        return voskModelManager;
-    }
-
-    /**
-     * Returns the filesystem path to the extracted Vosk model.
-     *
-     * @return the extracted Vosk model path.
-     */
-    public Path getVoskModelPath() {
-        return voskModelPath;
     }
 
     private void ensureVoiceModuleIsEnabled() {
@@ -111,25 +80,19 @@ public final class ArcadiaPlugin extends JavaPlugin {
         LOGGER.atInfo().log("Registered Arcadia voice stream handler.");
     }
 
-    private void initializeVoskModel() {
+    private void initializeVoiceService() {
         try {
-            BundledVoskModelExtractor extractor = new BundledVoskModelExtractor(
-                ArcadiaPlugin.class.getClassLoader(),
-                VoskModelManager.DEFAULT_MODEL_RESOURCE_PATH,
-                VoskModelManager.DEFAULT_MODEL_DIRECTORY_NAME
-            );
-
-            voskModelManager = new VoskModelManager(
+            voiceService = new VoiceService(
                 cacheDirectory,
-                extractor
+                ArcadiaPlugin.class.getClassLoader()
             );
 
-            voskModelPath = voskModelManager.prepareModel();
+            voiceService.start();
 
-            LOGGER.atInfo().log("Vosk model prepared at: %s", voskModelPath);
+            LOGGER.atInfo().log("Arcadia voice service started.");
         } catch (IOException exception) {
-            LOGGER.atSevere().withCause(exception).log("Failed to prepare bundled Vosk model.");
-            throw new IllegalStateException("Arcadia could not prepare the bundled Vosk model.", exception);
+            LOGGER.atSevere().withCause(exception).log("Failed to start Arcadia voice service.");
+            throw new IllegalStateException("Arcadia could not start the voice service.", exception);
         }
     }
 
@@ -142,5 +105,27 @@ public final class ArcadiaPlugin extends JavaPlugin {
         }
 
         return modsDirectory.resolve("arcadia-cache").normalize();
+    }
+
+    /**
+     * Returns Arcadia's voice service.
+     *
+     * <p>The voice service owns the voice pipeline lifecycle, including the bundled
+     * Vosk model preparation and, later, player voice sessions and recognition
+     * workers.</p>
+     *
+     * @return Arcadia's voice service.
+     */
+    public VoiceService getVoiceService() {
+        return voiceService;
+    }
+
+    /**
+     * Returns the active Arcadia plugin instance.
+     *
+     * @return the active plugin instance.
+     */
+    public static ArcadiaPlugin get() {
+        return instance;
     }
 }
