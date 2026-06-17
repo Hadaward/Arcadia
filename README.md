@@ -13,4 +13,4 @@ Players can cast spells through spoken incantations using a configurable grammar
 See the [/docs](./docs) directory.
 
 ## Contributing
-See the [/CONTRIBUTING.md](./CONTRIBUTING.md) directory.
+See the [CONTRIBUTING.md](./CONTRIBUTING.md) file.
