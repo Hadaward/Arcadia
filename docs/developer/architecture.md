@@ -8,8 +8,6 @@ Arcadia does not define spells as individual assets. Instead, spells emerge from
 
 The entire system is data-driven and designed to be extended without code modifications.
 
----
-
 ## Design Principles
 ### Data-Driven
 Gameplay content should be defined through assets whenever possible.
@@ -22,8 +20,6 @@ Arcadia treats magic as a language instead of a collection of predefined spells.
 All spellcasting functionality available through voice input must also be available through the phrase builder interface.
 
 Voice casting and manual phrase construction must use the same parser and execution pipeline.
-
----
 
 ## High Level Flow
 
@@ -46,8 +42,6 @@ Voice Input / Phrase Builder
     Effect Execution
 ```
 
----
-
 ## Components
 ### Lexicon Registry
 Loads all Arcadia assets.
@@ -60,18 +54,12 @@ Responsible for:
 * Generating grammar data
 * Providing lookup services
 
----
-
 ### Grammar Generator
 Builds the speech recognition grammar from the registered Arcadia assets.
 During startup, the framework automatically generates the vocabulary and recognition rules based on the available spell definitions, ensuring that no phrases or spell combinations need to be hard-coded into the system.
 
----
-
 ### Speech Recognition
 Arcadia uses the Italian Vosk model to recognize spoken incantations. Recognized words are converted into lexical tokens and passed to the parsing system, where they can be interpreted as magical commands. The speech recognition layer remains completely independent of gameplay logic, focusing solely on transforming speech into structured language data.
-
----
 
 ### Phrase Parser
 Responsible for validating and resolving phrases.
@@ -85,8 +73,6 @@ The parser determines:
 * Context-specific words
 
 The parser does not execute effects.
-
----
 
 ### Spell Context
 
@@ -108,8 +94,6 @@ Shape: Locus
 
 The resulting context is forwarded to the execution system.
 
----
-
 ### Effect Execution
 Receives a Spell Context and performs the gameplay logic.
 
@@ -122,8 +106,6 @@ Examples:
 * Create persistent effects
 
 Effects are independent of speech recognition and parsing.
-
----
 
 ## Accessibility Mode
 Arcadia includes an Accessibility Mode for players who cannot use voice input. In this mode, incantations are assembled through a visual interface by selecting the desired words and constructs, such as:
