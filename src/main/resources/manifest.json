@@ -1,0 +1,18 @@
+{
+  "Group": "com.github.hadaward",
+  "Name": "Arcadia",
+  "Version": "1.0.0",
+  "Main": "com.github.hadaward.ArcadiaPlugin",
+  "Authors": [
+    {
+      "Name": "Gamedroit",
+      "Email": "eduardo.gimenez07@gmail.com",
+      "Url": "https://github.com/Hadaward"
+    }
+  ],
+  "Dependencies": {
+    "Hytale:VoiceModule": "*"
+  },
+  "IncludesAssetPack": true,
+  "ServerVersion": "^0.5.4"
+}
