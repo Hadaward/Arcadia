@@ -10,7 +10,7 @@ Players can cast spells through spoken incantations using a configurable grammar
 - Custom spell creation
 
 ## Documentation
-See the [/docs](./docs). directory.
+See the [/docs](./docs) directory.
 
 ## Contributing
-See the [/CONTRIBUTING.md](./CONTRIBUTING.md). directory.
+See the [/CONTRIBUTING.md](./CONTRIBUTING.md) directory.
