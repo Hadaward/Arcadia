@@ -1,0 +1,9 @@
+{
+  "TranslationProperties": {
+    "Name": "arcadia.element.ignis.name",
+    "Description": "arcadia.element.ignis.desc"
+  },
+  "SpokenForms": [
+    "ignis"
+  ]
+}

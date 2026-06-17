@@ -1,0 +1,17 @@
+{
+  "TranslationProperties": {
+    "Name": "arcadia.lexicon.hostis.name",
+    "Description": "arcadia.lexicon.hostis.desc"
+  },
+  "SpokenForms": [
+    "hostis"
+  ],
+  "AllowedElements": [
+    "ignis",
+    "aqua",
+    "ventus",
+    "terra",
+    "lux",
+    "umbra"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "TranslationProperties": {
+    "Name": "arcadia.lexicon.socius.name",
+    "Description": "arcadia.lexicon.socius.desc"
+  },
+  "SpokenForms": [
+    "socius",
+    "alleato"
+  ],
+  "AllowedElements": [
+    "lux"
+  ]
+}

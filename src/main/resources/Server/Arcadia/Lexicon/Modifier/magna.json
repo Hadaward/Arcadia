@@ -1,0 +1,17 @@
+{
+  "TranslationProperties": {
+    "Name": "arcadia.lexicon.magna.name",
+    "Description": "arcadia.lexicon.magna.desc"
+  },
+  "SpokenForms": [
+    "magna"
+  ],
+  "AllowedElements": [
+    "ignis",
+    "aqua",
+    "ventus",
+    "terra",
+    "lux",
+    "umbra"
+  ]
+}

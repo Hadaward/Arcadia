@@ -1,0 +1,14 @@
+{
+  "TranslationProperties": {
+    "Name": "arcadia.lexicon.celer.name",
+    "Description": "arcadia.lexicon.celer.desc"
+  },
+  "SpokenForms": [
+    "celer",
+    "veloce"
+  ],
+  "AllowedElements": [
+    "ignis",
+    "ventus"
+  ]
+}

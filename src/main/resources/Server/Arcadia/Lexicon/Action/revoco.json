@@ -1,0 +1,12 @@
+{
+  "TranslationProperties": {
+    "Name": "arcadia.lexicon.revoco.name",
+    "Description": "arcadia.lexicon.revoco.desc"
+  },
+  "SpokenForms": [
+    "revoco"
+  ],
+  "AllowedElements": [
+    "umbra"
+  ]
+}

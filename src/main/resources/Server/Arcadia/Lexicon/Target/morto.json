@@ -1,0 +1,12 @@
+{
+  "TranslationProperties": {
+    "Name": "arcadia.lexicon.morto.name",
+    "Description": "arcadia.lexicon.morto.desc"
+  },
+  "SpokenForms": [
+    "morto"
+  ],
+  "AllowedElements": [
+    "umbra"
+  ]
+}

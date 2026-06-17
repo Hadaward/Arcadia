@@ -1,6 +1,7 @@
 package com.github.hadaward.arcadia;
 
 import com.github.hadaward.arcadia.core.voice.VoiceService;
+import com.github.hadaward.arcadia.hytale.assets.ArcadiaAssetStore;
 import com.github.hadaward.arcadia.hytale.voice.InterceptingVoiceStreamHandler;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.protocol.packets.stream.StreamType;
@@ -37,6 +38,8 @@ public final class ArcadiaPlugin extends JavaPlugin {
     @Override
     protected void setup() {
         super.setup();
+
+        ArcadiaAssetStore.registerAll();
 
         ensureVoiceModuleIsEnabled();
         registerVoiceStreamHandler();

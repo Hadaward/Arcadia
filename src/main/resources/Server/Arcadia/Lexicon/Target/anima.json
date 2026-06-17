@@ -1,0 +1,12 @@
+{
+  "TranslationProperties": {
+    "Name": "arcadia.lexicon.anima.name",
+    "Description": "arcadia.lexicon.anima.desc"
+  },
+  "SpokenForms": [
+    "anima"
+  ],
+  "AllowedElements": [
+    "umbra"
+  ]
+}

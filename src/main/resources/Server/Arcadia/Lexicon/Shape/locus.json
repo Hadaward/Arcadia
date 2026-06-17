@@ -1,0 +1,16 @@
+{
+  "TranslationProperties": {
+    "Name": "arcadia.lexicon.locus.name",
+    "Description": "arcadia.lexicon.locus.desc"
+  },
+  "SpokenForms": [
+    "locus"
+  ],
+  "AllowedElements": [
+    "ignis",
+    "aqua",
+    "ventus",
+    "terra",
+    "lux"
+  ]
+}

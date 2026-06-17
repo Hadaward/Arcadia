@@ -1,0 +1,12 @@
+{
+  "TranslationProperties": {
+    "Name": "arcadia.lexicon.vita.name",
+    "Description": "arcadia.lexicon.vita.desc"
+  },
+  "SpokenForms": [
+    "vita"
+  ],
+  "AllowedElements": [
+    "lux"
+  ]
+}

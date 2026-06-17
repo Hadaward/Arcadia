@@ -1,0 +1,17 @@
+{
+  "TranslationProperties": {
+    "Name": "arcadia.lexicon.sagitta.name",
+    "Description": "arcadia.lexicon.sagitta.desc"
+  },
+  "SpokenForms": [
+    "sagitta"
+  ],
+  "AllowedElements": [
+    "ignis",
+    "aqua",
+    "ventus",
+    "terra",
+    "lux",
+    "umbra"
+  ]
+}

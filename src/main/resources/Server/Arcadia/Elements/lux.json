@@ -1,0 +1,9 @@
+{
+  "TranslationProperties": {
+    "Name": "arcadia.element.lux.name",
+    "Description": "arcadia.element.lux.desc"
+  },
+  "SpokenForms": [
+    "lux"
+  ]
+}

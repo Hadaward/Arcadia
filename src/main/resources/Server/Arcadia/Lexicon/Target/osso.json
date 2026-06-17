@@ -1,0 +1,12 @@
+{
+  "TranslationProperties": {
+    "Name": "arcadia.lexicon.osso.name",
+    "Description": "arcadia.lexicon.osso.desc"
+  },
+  "SpokenForms": [
+    "osso"
+  ],
+  "AllowedElements": [
+    "umbra"
+  ]
+}

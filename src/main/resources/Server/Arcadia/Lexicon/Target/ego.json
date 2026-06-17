@@ -1,0 +1,13 @@
+{
+  "TranslationProperties": {
+    "Name": "arcadia.lexicon.ego.name",
+    "Description": "arcadia.lexicon.ego.desc"
+  },
+  "SpokenForms": [
+    "ego"
+  ],
+  "AllowedElements": [
+    "lux",
+    "umbra"
+  ]
+}

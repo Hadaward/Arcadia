@@ -1,0 +1,12 @@
+{
+  "TranslationProperties": {
+    "Name": "arcadia.lexicon.servus.name",
+    "Description": "arcadia.lexicon.servus.desc"
+  },
+  "SpokenForms": [
+    "servus"
+  ],
+  "AllowedElements": [
+    "umbra"
+  ]
+}
