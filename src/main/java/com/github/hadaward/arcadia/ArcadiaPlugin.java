@@ -1,7 +1,10 @@
 package com.github.hadaward.arcadia;
 
+import com.github.hadaward.arcadia.core.grammar.GrammarGenerator;
+import com.github.hadaward.arcadia.core.lexicon.LexiconSnapshot;
 import com.github.hadaward.arcadia.core.voice.VoiceService;
 import com.github.hadaward.arcadia.hytale.assets.ArcadiaAssetStore;
+import com.github.hadaward.arcadia.hytale.assets.lexicon.LexiconLoader;
 import com.github.hadaward.arcadia.hytale.voice.InterceptingVoiceStreamHandler;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.protocol.packets.stream.StreamType;
@@ -13,6 +16,7 @@ import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 
 /**
  * Main entry point for the Arcadia Hytale plugin.
@@ -44,6 +48,18 @@ public final class ArcadiaPlugin extends JavaPlugin {
         ensureVoiceModuleIsEnabled();
         registerVoiceStreamHandler();
         initializeVoiceService();
+    }
+
+    @Override
+    protected void start() {
+        super.start();
+
+        LexiconSnapshot snapshot = LexiconLoader.loadSnapshot();
+        List<String> grammar = new GrammarGenerator().generate(snapshot);
+
+        voiceService.updateGrammar(grammar);
+
+        LOGGER.atInfo().log("Updated Arcadia voice grammar with %s entries.", grammar.size());
     }
 
     /**

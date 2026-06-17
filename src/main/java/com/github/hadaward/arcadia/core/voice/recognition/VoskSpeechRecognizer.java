@@ -1,13 +1,14 @@
 package com.github.hadaward.arcadia.core.voice.recognition;
 
 import com.github.hadaward.arcadia.core.voice.audio.AudioFormatConstants;
-
 import org.vosk.Model;
 import org.vosk.Recognizer;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Vosk-backed speech recognizer used by Arcadia's voice pipeline.
@@ -24,10 +25,29 @@ public final class VoskSpeechRecognizer implements AutoCloseable {
     }
 
     @Nonnull
-    public RecognitionSession openSession() throws IOException {
+    public RecognitionSession openSession(@Nonnull List<String> grammar) throws IOException {
         return new RecognitionSession(
-            new Recognizer(model, AudioFormatConstants.VOSK_SAMPLE_RATE)
+            new Recognizer(
+                model,
+                AudioFormatConstants.VOSK_SAMPLE_RATE,
+                toGrammarJson(grammar)
+            )
         );
+    }
+
+    @Nonnull
+    private static String toGrammarJson(@Nonnull List<String> grammar) {
+        return grammar.stream()
+            .map(VoskSpeechRecognizer::quoteJsonString)
+            .collect(Collectors.joining(",", "[", "]"));
+    }
+
+    @Nonnull
+    private static String quoteJsonString(@Nonnull String value) {
+        return "\"" + value
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            + "\"";
     }
 
     @Override
