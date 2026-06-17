@@ -2,7 +2,7 @@
   "Group": "com.github.hadaward",
   "Name": "Arcadia",
   "Version": "1.0.0",
-  "Main": "com.github.hadaward.ArcadiaPlugin",
+  "Main": "com.github.hadaward.arcadia.ArcadiaPlugin",
   "Authors": [
     {
       "Name": "Gamedroit",

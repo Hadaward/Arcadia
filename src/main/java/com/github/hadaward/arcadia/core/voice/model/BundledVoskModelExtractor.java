@@ -3,37 +3,55 @@ package com.github.hadaward.arcadia.core.voice.model;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.*;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.Objects;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
- * Extracts the Vosk model bundled inside Arcadia's resources.
+ * Extracts Arcadia's bundled Vosk model zip into a filesystem directory.
  *
- * <p>The model is stored inside the plugin jar and must be extracted to a real
- * filesystem directory before it can be loaded by Vosk.</p>
+ * <p>Vosk cannot load a model directly from the plugin jar. The model must be
+ * available as a normal directory on disk, so Arcadia stores the model as a zip
+ * resource and extracts it into the runtime cache directory when needed.</p>
+ *
+ * <p>The extractor preserves the zip directory structure. If the zip contains a
+ * top-level directory matching the configured model directory name, that root
+ * directory is removed so the model contents are placed directly in the target
+ * directory.</p>
  */
 public final class BundledVoskModelExtractor {
     private final ClassLoader classLoader;
-    private final String resourceRoot;
+    private final String resourcePath;
+    private final String optionalRootDirectory;
 
-    public BundledVoskModelExtractor(@Nonnull ClassLoader classLoader, @Nonnull String resourceRoot) {
+    /**
+     * Creates a new bundled Vosk model extractor.
+     *
+     * @param classLoader class loader used to read the bundled model zip resource.
+     * @param resourcePath path to the bundled model zip inside the plugin resources.
+     * @param optionalRootDirectory optional top-level zip directory to remove during extraction.
+     */
+    public BundledVoskModelExtractor(
+        @Nonnull ClassLoader classLoader,
+        @Nonnull String resourcePath,
+        @Nonnull String optionalRootDirectory
+    ) {
         this.classLoader = Objects.requireNonNull(classLoader, "classLoader");
-        this.resourceRoot = normalizeResourceRoot(resourceRoot);
+        this.resourcePath = normalizeResourcePath(resourcePath);
+        this.optionalRootDirectory = normalizeEntryPath(optionalRootDirectory);
     }
 
     /**
-     * Extracts the bundled model if the target directory does not already exist.
+     * Extracts the bundled model zip if the target directory is missing or empty.
+     *
+     * <p>If the target directory already contains at least one file, it is assumed
+     * to contain a previously extracted model and extraction is skipped.</p>
      *
      * @param targetDirectory destination directory for the extracted model.
-     * @return the extracted model directory.
-     * @throws IOException if extraction fails.
+     * @return the target directory containing the extracted model.
+     * @throws IOException if the target directory cannot be prepared or extraction fails.
      */
     @Nonnull
     public Path extractIfMissing(@Nonnull Path targetDirectory) throws IOException {
@@ -48,117 +66,120 @@ public final class BundledVoskModelExtractor {
         }
 
         Files.createDirectories(targetDirectory);
-        extractTo(targetDirectory);
+        extractZipTo(targetDirectory);
 
         return targetDirectory;
     }
 
-    private void extractTo(@Nonnull Path targetDirectory) throws IOException {
-        URL resourceUrl = classLoader.getResource(resourceRoot);
+    /**
+     * Reads the bundled zip resource and extracts every entry into the target directory.
+     *
+     * @param targetDirectory destination directory for extracted model files.
+     * @throws IOException if the resource cannot be opened or an entry cannot be extracted.
+     */
+    private void extractZipTo(@Nonnull Path targetDirectory) throws IOException {
+        try (InputStream resourceStream = classLoader.getResourceAsStream(resourcePath)) {
+            if (resourceStream == null) {
+                throw new IOException("Bundled Vosk model zip not found: " + resourcePath);
+            }
 
-        if (resourceUrl == null) {
-            throw new IOException("Bundled Vosk model resource not found: " + resourceRoot);
-        }
+            try (ZipInputStream zipStream = new ZipInputStream(resourceStream)) {
+                ZipEntry entry;
 
-        if ("jar".equals(resourceUrl.getProtocol())) {
-            extractFromJar(resourceUrl, targetDirectory);
-            return;
-        }
-
-        if ("file".equals(resourceUrl.getProtocol())) {
-            extractFromDirectory(resourceUrl, targetDirectory);
-            return;
-        }
-
-        throw new IOException("Unsupported bundled model resource protocol: " + resourceUrl.getProtocol());
-    }
-
-    private void extractFromJar(@Nonnull URL resourceUrl, @Nonnull Path targetDirectory) throws IOException {
-        String path = resourceUrl.getPath();
-        int separatorIndex = path.indexOf("!/");
-
-        if (separatorIndex < 0) {
-            throw new IOException("Invalid jar resource URL: " + resourceUrl);
-        }
-
-        String jarPath = path.substring(5, separatorIndex);
-        String entryRoot = path.substring(separatorIndex + 2);
-
-        try (JarFile jarFile = new JarFile(Paths.get(URI.create(jarPath)).toFile())) {
-            Enumeration<JarEntry> entries = jarFile.entries();
-
-            while (entries.hasMoreElements()) {
-                JarEntry entry = entries.nextElement();
-                String entryName = entry.getName();
-
-                if (!entryName.startsWith(entryRoot) || entryName.equals(entryRoot)) {
-                    continue;
-                }
-
-                String relativeName = entryName.substring(entryRoot.length());
-
-                if (relativeName.startsWith("/")) {
-                    relativeName = relativeName.substring(1);
-                }
-
-                if (relativeName.isBlank()) {
-                    continue;
-                }
-
-                Path outputPath = targetDirectory.resolve(relativeName).normalize();
-
-                if (!outputPath.startsWith(targetDirectory)) {
-                    throw new IOException("Refusing to extract outside target directory: " + entryName);
-                }
-
-                if (entry.isDirectory()) {
-                    Files.createDirectories(outputPath);
-                    continue;
-                }
-
-                Files.createDirectories(outputPath.getParent());
-
-                try (InputStream input = jarFile.getInputStream(entry)) {
-                    Files.copy(input, outputPath, StandardCopyOption.REPLACE_EXISTING);
+                while ((entry = zipStream.getNextEntry()) != null) {
+                    extractEntry(zipStream, entry, targetDirectory);
+                    zipStream.closeEntry();
                 }
             }
         }
     }
 
-    private void extractFromDirectory(@Nonnull URL resourceUrl, @Nonnull Path targetDirectory) throws IOException {
-        Path sourceDirectory;
+    /**
+     * Extracts a single zip entry while preventing path traversal.
+     *
+     * @param zipStream currently opened zip stream positioned at the entry.
+     * @param entry zip entry to extract.
+     * @param targetDirectory destination directory for extracted files.
+     * @throws IOException if the entry path is unsafe or cannot be written.
+     */
+    private void extractEntry(
+        @Nonnull ZipInputStream zipStream,
+        @Nonnull ZipEntry entry,
+        @Nonnull Path targetDirectory
+    ) throws IOException {
+        String entryName = resolveEntryName(entry.getName());
 
-        try {
-            sourceDirectory = Paths.get(resourceUrl.toURI());
-        } catch (URISyntaxException exception) {
-            throw new IOException("Invalid bundled model directory URL: " + resourceUrl, exception);
+        if (entryName.isBlank()) {
+            return;
         }
 
-        try (var paths = Files.walk(sourceDirectory)) {
-            for (Path sourcePath : paths.toList()) {
-                Path relativePath = sourceDirectory.relativize(sourcePath);
-                Path outputPath = targetDirectory.resolve(relativePath).normalize();
+        Path outputPath = targetDirectory.resolve(entryName).normalize();
 
-                if (!outputPath.startsWith(targetDirectory)) {
-                    throw new IOException("Refusing to copy outside target directory: " + sourcePath);
-                }
-
-                if (Files.isDirectory(sourcePath)) {
-                    Files.createDirectories(outputPath);
-                } else {
-                    Files.createDirectories(outputPath.getParent());
-                    Files.copy(sourcePath, outputPath, StandardCopyOption.REPLACE_EXISTING);
-                }
-            }
+        if (!outputPath.startsWith(targetDirectory)) {
+            throw new IOException("Refusing to extract outside target directory: " + entry.getName());
         }
+
+        if (entry.isDirectory()) {
+            Files.createDirectories(outputPath);
+            return;
+        }
+
+        Files.createDirectories(outputPath.getParent());
+        Files.copy(zipStream, outputPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
+    /**
+     * Resolves the final extraction path for a zip entry.
+     *
+     * <p>The original directory structure is preserved. Only the configured
+     * optional root directory is removed.</p>
+     *
+     * <p>Example:</p>
+     *
+     * <pre>
+     * vosk-model-small-it-0.22/conf/model.conf -> conf/model.conf
+     * conf/model.conf                          -> conf/model.conf
+     * </pre>
+     *
+     * @param entryName raw zip entry name.
+     * @return normalized entry name relative to the target directory.
+     */
+    @Nonnull
+    private String resolveEntryName(@Nonnull String entryName) {
+        String normalized = normalizeEntryPath(entryName);
+
+        if (normalized.equals(optionalRootDirectory)) {
+            return "";
+        }
+
+        String rootPrefix = optionalRootDirectory + "/";
+
+        if (normalized.startsWith(rootPrefix)) {
+            return normalized.substring(rootPrefix.length());
+        }
+
+        return normalized;
+    }
+
+    /**
+     * Checks whether a directory contains at least one regular file.
+     *
+     * @param directory directory to inspect.
+     * @return {@code true} when the directory contains any regular file.
+     * @throws IOException if walking the directory fails.
+     */
     private static boolean hasAnyFile(@Nonnull Path directory) throws IOException {
         try (var paths = Files.walk(directory)) {
             return paths.anyMatch(Files::isRegularFile);
         }
     }
 
+    /**
+     * Deletes a file tree recursively.
+     *
+     * @param path root path to delete.
+     * @throws IOException if any file cannot be deleted.
+     */
     private static void deleteRecursively(@Nonnull Path path) throws IOException {
         if (!Files.exists(path)) {
             return;
@@ -171,9 +192,32 @@ public final class BundledVoskModelExtractor {
         }
     }
 
+    /**
+     * Normalizes a classpath resource path.
+     *
+     * @param resourcePath raw resource path.
+     * @return normalized resource path without a leading slash.
+     */
     @Nonnull
-    private static String normalizeResourceRoot(@Nonnull String resourceRoot) {
-        String normalized = resourceRoot.strip();
+    private static String normalizeResourcePath(@Nonnull String resourcePath) {
+        String normalized = resourcePath.strip();
+
+        while (normalized.startsWith("/")) {
+            normalized = normalized.substring(1);
+        }
+
+        return normalized;
+    }
+
+    /**
+     * Normalizes a zip entry path.
+     *
+     * @param entryPath raw zip entry path.
+     * @return normalized zip entry path without leading or trailing slashes.
+     */
+    @Nonnull
+    private static String normalizeEntryPath(@Nonnull String entryPath) {
+        String normalized = entryPath.strip().replace('\\', '/');
 
         while (normalized.startsWith("/")) {
             normalized = normalized.substring(1);

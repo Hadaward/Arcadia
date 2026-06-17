@@ -115,7 +115,8 @@ public final class ArcadiaPlugin extends JavaPlugin {
         try {
             BundledVoskModelExtractor extractor = new BundledVoskModelExtractor(
                 ArcadiaPlugin.class.getClassLoader(),
-                VoskModelManager.DEFAULT_MODEL_RESOURCE_ROOT
+                VoskModelManager.DEFAULT_MODEL_RESOURCE_PATH,
+                VoskModelManager.DEFAULT_MODEL_DIRECTORY_NAME
             );
 
             voskModelManager = new VoskModelManager(
@@ -125,9 +126,9 @@ public final class ArcadiaPlugin extends JavaPlugin {
 
             voskModelPath = voskModelManager.prepareModel();
 
-            LOGGER.atInfo().log("Vosk model prepared at: {}", voskModelPath);
+            LOGGER.atInfo().log("Vosk model prepared at: %s", voskModelPath);
         } catch (IOException exception) {
-            LOGGER.atSevere().log("Failed to prepare bundled Vosk model.", exception);
+            LOGGER.atSevere().withCause(exception).log("Failed to prepare bundled Vosk model.");
             throw new IllegalStateException("Arcadia could not prepare the bundled Vosk model.", exception);
         }
     }

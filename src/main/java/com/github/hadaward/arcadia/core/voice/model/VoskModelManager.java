@@ -13,8 +13,11 @@ import java.util.Objects;
  * manager resolves the cache location and delegates extraction when needed.</p>
  */
 public final class VoskModelManager {
-    public static final String DEFAULT_MODEL_RESOURCE_ROOT = "Arcadia/Vosk/Model";
-    public static final String DEFAULT_MODEL_DIRECTORY_NAME = "vosk-model-small-it-0.22";
+    public static final String DEFAULT_MODEL_RESOURCE_PATH =
+        "Arcadia/Vosk/vosk-model-small-it-0.22.zip";
+
+    public static final String DEFAULT_MODEL_DIRECTORY_NAME =
+        "vosk-model-small-it-0.22";
 
     private final Path cacheDirectory;
     private final BundledVoskModelExtractor extractor;
