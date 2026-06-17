@@ -26,13 +26,17 @@ dependencies {
     implementation("com.alphacephei:vosk:${voskVersion}")
     implementation("io.github.jaredmdobson:concentus:${concentusVersion}")
 
+    testImplementation("com.fasterxml.jackson.core:jackson-databind:2.21.1")
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+
+    testCompileOnly("com.google.code.findbugs:jsr305:3.0.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
     archiveBaseName.set(pluginName)
     archiveVersion.set(pluginVersion)
 
@@ -40,8 +44,12 @@ tasks.jar {
 
     from({
         configurations.runtimeClasspath.get()
-            .filter { it.name.endsWith(".jar") }
-            .map { zipTree(it) }
+            .filter {
+                it.name.endsWith(".jar")
+            }
+            .map {
+                zipTree(it)
+            }
     })
 }
 
