@@ -6,6 +6,7 @@ import com.github.hadaward.arcadia.core.lexicon.LexiconWord;
 import com.github.hadaward.arcadia.core.lexicon.WordCategory;
 import com.github.hadaward.arcadia.hytale.assets.element.ElementAssets;
 import com.github.hadaward.arcadia.hytale.assets.element.ElementDefinition;
+import com.github.hadaward.arcadia.hytale.assets.lexicon.definitions.LexiconWordDefinition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,10 +49,7 @@ public final class LexiconLoader {
         for (LexiconCategory category : LexiconCategory.values()) {
             WordCategory wordCategory = toCoreCategory(category);
 
-            for (LexiconWordDefinition definition : LexiconWordAssets
-                .getAssetMap(category)
-                .getAssetMap()
-                .values()) {
+            for (LexiconWordDefinition definition : LexiconWordAssets.getDefinitions(category)) {
                 words.add(new LexiconWord(
                     definition.getId(),
                     wordCategory,
