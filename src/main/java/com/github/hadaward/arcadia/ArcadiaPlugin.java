@@ -5,13 +5,18 @@ import com.github.hadaward.arcadia.core.lexicon.LexiconSnapshot;
 import com.github.hadaward.arcadia.core.voice.VoiceService;
 import com.github.hadaward.arcadia.hytale.assets.ArcadiaAssetStore;
 import com.github.hadaward.arcadia.hytale.assets.lexicon.LexiconLoader;
+import com.github.hadaward.arcadia.hytale.interaction.ArcadiaInteractions;
 import com.github.hadaward.arcadia.hytale.voice.InterceptingVoiceStreamHandler;
+import com.github.hadaward.arcadia.hytale.voice.VoiceSessionManager;
+
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.protocol.packets.stream.StreamType;
 import com.hypixel.hytale.server.core.io.stream.StreamManager;
+import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Interaction;
 import com.hypixel.hytale.server.core.modules.voice.VoiceModule;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
+
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import java.io.IOException;
@@ -31,6 +36,7 @@ public final class ArcadiaPlugin extends JavaPlugin {
 
     private final Path cacheDirectory;
     private VoiceService voiceService;
+    private VoiceSessionManager voiceSessionManager;
 
     public ArcadiaPlugin(@NonNullDecl JavaPluginInit init) {
         super(init);
@@ -44,6 +50,7 @@ public final class ArcadiaPlugin extends JavaPlugin {
         super.setup();
 
         ArcadiaAssetStore.registerAll();
+        ArcadiaInteractions.registerAll(getCodecRegistry(Interaction.CODEC));
 
         ensureVoiceModuleIsEnabled();
         registerVoiceStreamHandler();
@@ -58,6 +65,7 @@ public final class ArcadiaPlugin extends JavaPlugin {
         List<String> grammar = new GrammarGenerator().generate(snapshot);
 
         voiceService.updateGrammar(grammar);
+        voiceSessionManager.updateLexicon(snapshot);
 
         LOGGER.atInfo().log("Updated Arcadia voice grammar with %s entries.", grammar.size());
     }
@@ -107,6 +115,7 @@ public final class ArcadiaPlugin extends JavaPlugin {
             );
 
             voiceService.start();
+            voiceSessionManager = new VoiceSessionManager(voiceService);
 
             LOGGER.atInfo().log("Arcadia voice service started.");
         } catch (IOException exception) {
@@ -137,6 +146,10 @@ public final class ArcadiaPlugin extends JavaPlugin {
      */
     public VoiceService getVoiceService() {
         return voiceService;
+    }
+
+    public VoiceSessionManager getVoiceSessionManager() {
+        return voiceSessionManager;
     }
 
     /**

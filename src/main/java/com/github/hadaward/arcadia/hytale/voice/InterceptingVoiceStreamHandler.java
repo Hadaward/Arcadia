@@ -1,5 +1,7 @@
 package com.github.hadaward.arcadia.hytale.voice;
 
+import com.github.hadaward.arcadia.ArcadiaPlugin;
+
 import com.hypixel.hytale.protocol.NetworkChannel;
 import com.hypixel.hytale.protocol.ToServerPacket;
 import com.hypixel.hytale.protocol.io.ChannelConnection;
@@ -74,6 +76,10 @@ public class InterceptingVoiceStreamHandler implements ConnectionHandler {
         if (!canProcessVoiceData(playerRef, voiceData)) {
             return;
         }
+
+        ArcadiaPlugin.get()
+            .getVoiceSessionManager()
+            .acceptVoiceData(playerRef, voiceData.opusData);
 
         voiceModule.getVoiceExecutor(playerRef.getUuid()).execute(
             () -> voiceModule.getVoiceRouter().routeVoiceFromCache(playerRef, voiceData)
