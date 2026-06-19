@@ -1,0 +1,15 @@
+{
+  "Type": "Charging",
+  "Effects": {
+    "ItemAnimationId": "SpellCasting_Ready"
+  },
+  "AllowIndefiniteHold": true,
+  "DisplayProgress": false,
+  "CancelOnOtherClick": true,
+  "FailOnDamage": true,
+  "HorizontalSpeedMultiplier": 0.5,
+  "Next": {
+    "0": "Staff_Eloquence_Execute_Pending"
+  },
+  "Failed": "Staff_Eloquence_Cancel"
+}

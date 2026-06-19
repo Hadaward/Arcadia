@@ -1,0 +1,10 @@
+{
+  "Type": "Simple",
+  "RunTime": 1.0,
+  "Effects": {
+    "ItemAnimationId": "SpellCasting_Manifesting",
+    "ClearAnimationOnFinish": true
+  },
+  "Next": "Staff_Eloquence_Ready",
+  "Failed": "Staff_Eloquence_Cancel"
+}

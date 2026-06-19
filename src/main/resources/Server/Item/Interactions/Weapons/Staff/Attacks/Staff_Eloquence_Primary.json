@@ -1,0 +1,16 @@
+{
+  "Type": "arcadia_staff_eloquence_listening_charge",
+  "Effects": {
+    "ItemAnimationId": "SpellCasting_Channeling",
+    "ClearAnimationOnFinish": true
+  },
+  "StartTime": 9999.0,
+  "AllowIndefiniteHold": true,
+  "DisplayProgress": false,
+  "CancelOnOtherClick": true,
+  "FailOnDamage": true,
+  "HorizontalSpeedMultiplier": 0.5,
+  "QuickNext": "Staff_Eloquence_Cancel",
+  "Next": "Staff_Eloquence_Cancel",
+  "Failed": "Staff_Eloquence_Cancel"
+}
